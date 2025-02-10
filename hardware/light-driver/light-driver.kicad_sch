@@ -7030,7 +7030,7 @@
 	)
 	(wire
 		(pts
-			(xy 105.41 24.13) (xy 109.22 24.13)
+			(xy 105.41 24.13) (xy 107.95 24.13)
 		)
 		(stroke
 			(width 0)
@@ -7520,7 +7520,7 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 24.13) (xy 118.11 24.13)
+			(xy 115.57 24.13) (xy 118.11 24.13)
 		)
 		(stroke
 			(width 0)
@@ -8873,7 +8873,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 208.5848 140.97 0)
 			(effects
 				(font
@@ -10237,7 +10237,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 133.6548 26.67 0)
 			(effects
 				(font
@@ -10837,7 +10837,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 188.9252 148.59 0)
 			(effects
 				(font
@@ -12122,7 +12122,7 @@
 	)
 	(symbol
 		(lib_id "Device:L")
-		(at 113.03 24.13 90)
+		(at 111.76 24.13 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -12130,7 +12130,7 @@
 		(dnp no)
 		(uuid "8c311972-00df-41c1-85d6-34b9f656c33f")
 		(property "Reference" "L1"
-			(at 113.03 21.59 90)
+			(at 111.76 21.59 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12138,15 +12138,15 @@
 			)
 		)
 		(property "Value" "10u"
-			(at 113.03 25.4 90)
+			(at 111.76 25.4 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Inductor_SMD:L_1008_2520Metric_Pad1.43x2.20mm_HandSolder"
-			(at 113.03 24.13 0)
+		(property "Footprint" "Inductor_SMD:L_1210_3225Metric_Pad1.42x2.65mm_HandSolder"
+			(at 111.76 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12155,7 +12155,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 113.03 24.13 0)
+			(at 111.76 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12164,7 +12164,7 @@
 			)
 		)
 		(property "Description" "Inductor"
-			(at 113.03 24.13 0)
+			(at 111.76 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13734,7 +13734,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 145.7452 35.56 0)
 			(effects
 				(font
@@ -13804,7 +13804,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 182.5752 35.56 0)
 			(effects
 				(font
@@ -14705,7 +14705,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 126.0348 26.67 0)
 			(effects
 				(font
