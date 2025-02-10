@@ -8180,6 +8180,16 @@
 		)
 		(uuid "8cff1234-2ea9-41d5-aac0-2fc5a5daed6d")
 	)
+	(text "Unless otherwise specified, the working voltage of all capacitors is 6.3V. "
+		(exclude_from_sim no)
+		(at 231.14 173.99 0)
+		(effects
+			(font
+				(size 1.8 1.8)
+			)
+		)
+		(uuid "a2377a1a-3d9b-45d8-8d4b-eb52dab49f96")
+	)
 	(text "status LEDs"
 		(exclude_from_sim no)
 		(at 15.24 111.76 0)
