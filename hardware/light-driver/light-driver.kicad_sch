@@ -12560,7 +12560,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4R7"
+		(property "Value" "220R"
 			(at 30.48 138.43 90)
 			(effects
 				(font
@@ -14775,7 +14775,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "68R"
+		(property "Value" "390R"
 			(at 20.32 138.43 90)
 			(effects
 				(font
