@@ -1,0 +1,6 @@
+[submodule "firmware/common-stuff/util"]
+	path = firmware/common-stuff/util
+	url = git@github.com:MG-5/util.git
+[submodule "firmware/common-stuff/core"]
+	path = firmware/common-stuff/core
+	url = git@github.com:MG-5/core

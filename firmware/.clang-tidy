@@ -1,0 +1,82 @@
+Checks: abseil-*,
+
+        altera-struct-pack-align,
+
+        bugprone-*,
+        -bugprone-bool-pointer-implicit-conversion,
+        -bugprone-easily-swappable-parameters,
+        -bugprone-exception-escape,
+        -bugprone-infinite-loop,
+        -bugprone-signed-char-misuse,
+
+        boost-*,
+
+        cert-dcl03-c,
+        cert-dcl21-cpp,
+        cert-dcl58-cpp,
+        cert-err34-c,
+        cert-err52-cpp,
+        cert-err58-cpp,
+        cert-err60-cpp,
+        cert-flp30-c,
+        cert-msc50-cpp,
+        cert-msc51-cpp,
+        cert-oop54-cpp,
+
+        cppcoreguidelines-interfaces-global-init,
+        cppcoreguidelines-macro-usage,
+        cppcoreguidelines-narrowing-conversions,
+        cppcoreguidelines-pro-type-member-init,
+        cppcoreguidelines-pro-type-static-cast-downcast,
+        cppcoreguidelines-slicing,
+
+        google-default-arguments,
+        google-explicit-constructor,
+        google-runtime-operator,
+
+        hicpp-exception-baseclass,
+        hicpp-multiway-paths-covered,
+
+        misc-*,
+        -misc-non-private-member-variables-in-classes,
+        -misc-unused-*,
+
+        modernize-*,
+        -modernize-avoid-c-arrays,
+        -modernize-use-default-member-init,
+        -modernize-use-trailing-return-type,
+
+        mpi-*,
+
+        openmp-use-default-none,
+
+        performance-*,
+
+        portability-*,
+
+        readability-*,
+        -readability-braces-around-statements,
+        -readability-convert-member-functions-to-static,
+        -readability-function-size,
+        -readability-implicit-bool-conversion,
+        -readability-isolate-declaration,
+        -readability-magic-numbers,
+        -readability-make-member-function-const,
+        -readability-named-parameter,
+        -readability-qualified-auto,
+        -readability-redundant-access-specifiers,
+        -readability-uppercase-literal-suffix,
+
+CheckOptions:
+  - { key: readability-identifier-naming.NamespaceCase,         value: lower_case }
+  - { key: readability-identifier-naming.ClassCase,             value: CamelCase }
+  - { key: readability-identifier-naming.ConstantCase,          value: CamelCase }
+  - { key: readability-identifier-naming.ConstantParameterCase, value: camelBack }
+  - { key: readability-identifier-naming.StructCase,            value: CamelCase }
+  - { key: readability-identifier-naming.FunctionCase,          value: camelBack }
+  - { key: readability-identifier-naming.MethodCase,            value: camelBack }
+  - { key: readability-identifier-naming.VariableCase,          value: camelBack }
+  - { key: readability-identifier-naming.ParameterCase,         value: camelBack }
+  - { key: readability-identifier-naming.GlobalConstantCase,    value: CamelCase }
+  - { key: readability-identifier-naming.EnumCase,              value: CamelCase }
+  - { key: readability-identifier-naming.EnumConstantCase,      value: CamelCase }

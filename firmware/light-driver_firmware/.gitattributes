@@ -1,0 +1,2 @@
+# Exlude CubeMX files from Linguist detection
+cubemx/** linguist-vendored
