@@ -1,8 +1,8 @@
 #pragma once
 
-// #include "LED/LedStrip.hpp"
 #include "MessageProcessor.hpp"
 #include "can/CanInterface.hpp"
+#include "led/LedStrip.hpp"
 #include "led/StatusLeds.hpp"
 
 /// The entry point of users C++ firmware. This comes after CubeHAL and FreeRTOS initialization.
@@ -15,9 +15,19 @@ public:
 
     static constexpr auto CanPeripherie = &hfdcan1;
 
-    // static constexpr auto LedStripPwmTimer = &htim?;
-    // static constexpr auto WarmWhiteChannel = TIM_CHANNEL_?;
-    // static constexpr auto ColdWhiteChannel = TIM_CHANNEL_?;
+    struct LedStrip0
+    {
+        static constexpr auto PwmTimer = &htim3;
+        static constexpr auto WarmWhiteChannel = TIM_CHANNEL_1;
+        static constexpr auto ColdWhiteChannel = TIM_CHANNEL_2;
+    };
+
+    struct LedStrip1
+    {
+        static constexpr auto PwmTimer = &htim4;
+        static constexpr auto WarmWhiteChannel = TIM_CHANNEL_1;
+        static constexpr auto ColdWhiteChannel = TIM_CHANNEL_2;
+    };
 
     Application();
     [[noreturn]] void run();
@@ -25,6 +35,10 @@ public:
     static Application &getApplicationInstance();
 
     static inline Application *instance{nullptr};
+
+    StatusLeds statusLeds{ledRedGpio, ledGreenGpio};
+    LedStrip ledStrip0{LedStrip0::PwmTimer, LedStrip0::WarmWhiteChannel, LedStrip0::ColdWhiteChannel};
+    LedStrip ledStrip1{LedStrip1::PwmTimer, LedStrip1::WarmWhiteChannel, LedStrip1::ColdWhiteChannel};
 
     util::Gpio addressBit0{addressBit0_GPIO_Port, addressBit0_Pin};
     util::Gpio addressBit1{addressBit1_GPIO_Port, addressBit1_Pin};
@@ -36,12 +50,9 @@ public:
     util::wrappers::StreamBuffer canBusTxStream{StreamBufferSize, 0};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
 
-    MessageProcessor messageProcessor{lightDriverIndex, canBusRxStream, canBusTxStream};
+    MessageProcessor messageProcessor{ledStrip0, ledStrip1, lightDriverIndex, canBusRxStream, canBusTxStream};
 
     void registerCallbacks();
     void determineAddressBits();
     void setupCanBus();
-
-    StatusLeds statusLeds{ledRedGpio, ledGreenGpio};
-    // LedStrip ledStrip{LedStripPwmTimer, WarmWhiteChannel, ColdWhiteChannel};
 };

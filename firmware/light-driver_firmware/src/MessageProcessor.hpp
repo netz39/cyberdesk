@@ -5,14 +5,17 @@
 #include "wrappers/Task.hpp"
 
 #include "can/can_ids.hpp"
+#include "led/LedStrip.hpp"
 
 class MessageProcessor : public util::wrappers::TaskWithMemberFunctionBase
 {
 
 public:
-    MessageProcessor(uint8_t &lightDriverIndex, util::wrappers::StreamBuffer &canBusRxStream,
-                     util::wrappers::StreamBuffer &canBusTxStream)
+    MessageProcessor(LedStrip &ledStrip0, LedStrip &ledStrip1, uint8_t &lightDriverIndex,
+                     util::wrappers::StreamBuffer &canBusRxStream, util::wrappers::StreamBuffer &canBusTxStream)
         : TaskWithMemberFunctionBase("MessageProcessor", 512, osPriorityAboveNormal6), //
+          ledStrip0(ledStrip0),                                                        //
+          ledStrip1(ledStrip1),                                                        //
           lightDriverIndex(lightDriverIndex),                                          //
           canBusRxStream(canBusRxStream),                                              //
           canBusTxStream(canBusTxStream)
@@ -80,6 +83,8 @@ protected:
     }
 
 private:
+    LedStrip &ledStrip0;
+    LedStrip &ledStrip1;
     uint8_t &lightDriverIndex;
     util::wrappers::StreamBuffer &canBusRxStream;
     util::wrappers::StreamBuffer &canBusTxStream;
@@ -109,6 +114,7 @@ private:
 
     void setBrightness(uint8_t brightness, uint8_t ledStripIndex)
     {
+        ledStrip0.turnOnWithFade();
     }
 
     void setColorTemperature(uint16_t colorTemperature, uint8_t ledStripIndex)
