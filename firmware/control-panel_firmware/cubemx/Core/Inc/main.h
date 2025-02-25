@@ -57,8 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Encoder3_Button_Pin GPIO_PIN_14
-#define Encoder3_Button_GPIO_Port GPIOC
+#define Encoder2_Button_Pin GPIO_PIN_14
+#define Encoder2_Button_GPIO_Port GPIOC
 #define Encoder0_A_Pin GPIO_PIN_0
 #define Encoder0_A_GPIO_Port GPIOA
 #define Encoder0_B_Pin GPIO_PIN_1
@@ -71,22 +71,26 @@ void Error_Handler(void);
 #define addressBit1_GPIO_Port GPIOB
 #define addressBit2_Pin GPIO_PIN_2
 #define addressBit2_GPIO_Port GPIOB
+#define Encoder1_A_Pin GPIO_PIN_8
+#define Encoder1_A_GPIO_Port GPIOA
+#define Encoder1_B_Pin GPIO_PIN_9
+#define Encoder1_B_GPIO_Port GPIOA
 #define Encoder1_Button_Pin GPIO_PIN_6
 #define Encoder1_Button_GPIO_Port GPIOC
 #define ledRed_Pin GPIO_PIN_10
 #define ledRed_GPIO_Port GPIOA
 #define ledGreen_Pin GPIO_PIN_11
 #define ledGreen_GPIO_Port GPIOA
-#define Encoder2_Button_Pin GPIO_PIN_15
-#define Encoder2_Button_GPIO_Port GPIOA
-#define Encoder2_A_Pin GPIO_PIN_4
-#define Encoder2_A_GPIO_Port GPIOB
-#define Encoder2_B_Pin GPIO_PIN_5
-#define Encoder2_B_GPIO_Port GPIOB
-#define Encoder3_A_Pin GPIO_PIN_6
+#define Encoder3_Button_Pin GPIO_PIN_15
+#define Encoder3_Button_GPIO_Port GPIOA
+#define Encoder3_A_Pin GPIO_PIN_4
 #define Encoder3_A_GPIO_Port GPIOB
-#define Encoder3_B_Pin GPIO_PIN_7
+#define Encoder3_B_Pin GPIO_PIN_5
 #define Encoder3_B_GPIO_Port GPIOB
+#define Encoder2_A_Pin GPIO_PIN_6
+#define Encoder2_A_GPIO_Port GPIOB
+#define Encoder2_B_Pin GPIO_PIN_7
+#define Encoder2_B_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

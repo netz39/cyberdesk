@@ -21,18 +21,8 @@ protected:
 
         while (true)
         {
-            // ledRedGreen.updateState(lastWakeTime);
-            // vTaskDelayUntil(&lastWakeTime, toOsTicks(100.0_Hz));
-
-            ledRedGreen.setColor(util::led::binary::DualLedColor::Red);
             ledRedGreen.updateState(lastWakeTime);
-            vTaskDelay(toOsTicks(0.5_s));
-            ledRedGreen.setColor(util::led::binary::DualLedColor::Yellow);
-            ledRedGreen.updateState(lastWakeTime);
-            vTaskDelay(toOsTicks(0.5_s));
-            ledRedGreen.setColor(util::led::binary::DualLedColor::Green);
-            ledRedGreen.updateState(lastWakeTime);
-            vTaskDelay(toOsTicks(0.5_s));
+            vTaskDelayUntil(&lastWakeTime, toOsTicks(100.0_Hz));
         }
     }
 
@@ -40,6 +30,7 @@ private:
     const util::Gpio &ledRedGpio;
     const util::Gpio &ledGreenGpio;
 
+public:
     using DualLed = util::led::binary::DualLed;
 
     DualLed ledRedGreen{ledRedGpio, ledGreenGpio};

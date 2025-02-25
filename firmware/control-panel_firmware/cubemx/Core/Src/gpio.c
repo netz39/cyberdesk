@@ -50,8 +50,8 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, ledRed_Pin|ledGreen_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : Encoder3_Button_Pin Encoder1_Button_Pin */
-  GPIO_InitStruct.Pin = Encoder3_Button_Pin|Encoder1_Button_Pin;
+  /*Configure GPIO pins : Encoder2_Button_Pin Encoder1_Button_Pin */
+  GPIO_InitStruct.Pin = Encoder2_Button_Pin|Encoder1_Button_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -68,8 +68,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Encoder0_Button_Pin Encoder2_Button_Pin */
-  GPIO_InitStruct.Pin = Encoder0_Button_Pin|Encoder2_Button_Pin;
+  /*Configure GPIO pins : Encoder0_Button_Pin Encoder3_Button_Pin */
+  GPIO_InitStruct.Pin = Encoder0_Button_Pin|Encoder3_Button_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

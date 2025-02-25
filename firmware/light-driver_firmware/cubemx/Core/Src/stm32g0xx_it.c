@@ -55,6 +55,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern FDCAN_HandleTypeDef hfdcan1;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -113,6 +114,20 @@ void TIM6_DAC_LPTIM1_IRQHandler(void)
   /* USER CODE BEGIN TIM6_DAC_LPTIM1_IRQn 1 */
 
   /* USER CODE END TIM6_DAC_LPTIM1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM16, FDCAN1_IT0 and FDCAN2_IT0 Interrupt.
+  */
+void TIM16_FDCAN_IT0_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM16_FDCAN_IT0_IRQn 0 */
+
+  /* USER CODE END TIM16_FDCAN_IT0_IRQn 0 */
+  HAL_FDCAN_IRQHandler(&hfdcan1);
+  /* USER CODE BEGIN TIM16_FDCAN_IT0_IRQn 1 */
+
+  /* USER CODE END TIM16_FDCAN_IT0_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
