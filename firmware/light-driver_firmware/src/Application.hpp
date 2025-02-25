@@ -1,6 +1,7 @@
 #pragma once
 
 // #include "LED/LedStrip.hpp"
+#include "MessageProcessor.hpp"
 #include "can/CanInterface.hpp"
 #include "led/StatusLeds.hpp"
 
@@ -25,15 +26,17 @@ public:
 
     static inline Application *instance{nullptr};
 
-    static constexpr auto CanBusBufferSize = 128;
-    util::wrappers::StreamBuffer canBusRxStream{CanBusBufferSize, 0};
-    util::wrappers::StreamBuffer canBusTxStream{CanBusBufferSize, 0};
-    CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
-
     util::Gpio addressBit0{addressBit0_GPIO_Port, addressBit0_Pin};
     util::Gpio addressBit1{addressBit1_GPIO_Port, addressBit1_Pin};
     util::Gpio addressBit2{addressBit2_GPIO_Port, addressBit2_Pin};
     uint8_t lightDriverIndex = 0;
+
+    static constexpr auto StreamBufferSize = 256;
+    util::wrappers::StreamBuffer canBusRxStream{StreamBufferSize, 0};
+    util::wrappers::StreamBuffer canBusTxStream{StreamBufferSize, 0};
+    CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
+
+    MessageProcessor messageProcessor{lightDriverIndex, canBusRxStream, canBusTxStream};
 
     void registerCallbacks();
     void determineAddressBits();

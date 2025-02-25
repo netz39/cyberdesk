@@ -22,14 +22,19 @@ public:
         configASSERT(canPeripherie != nullptr);
     }
 
-    void retrieveMessageFromFifo()
+    void receiveFifoMessageFromIsr()
     {
+        BaseType_t higherPriorityTaskWoken = pdFALSE;
         FDCAN_RxHeaderTypeDef rxHeader;
 
         if (HAL_FDCAN_GetRxMessage(canPeripherie, FDCAN_RX_FIFO0, &rxHeader, rxBuffer) == HAL_OK)
         {
-            // asm("bkpt");
+            rxStream.sendFromISR(std::span(reinterpret_cast<uint8_t *>(&rxHeader), sizeof(FDCAN_RxHeaderTypeDef)),
+                                 &higherPriorityTaskWoken);
+            rxStream.sendFromISR(std::span(rxBuffer, rxHeader.DataLength), &higherPriorityTaskWoken);
         }
+
+        portYIELD_FROM_ISR(higherPriorityTaskWoken);
     }
 
 protected:
@@ -48,7 +53,7 @@ private:
     util::wrappers::StreamBuffer &rxStream;
     util::wrappers::StreamBuffer &txStream;
 
-    static constexpr auto BufferSize = 128;
+    static constexpr auto BufferSize = 64;
     uint8_t rxBuffer[BufferSize];
     uint8_t txBuffer[BufferSize];
 
