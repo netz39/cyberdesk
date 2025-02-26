@@ -4,7 +4,6 @@
 
 #include "Application.hpp"
 #include "can/can_ids.hpp"
-#include "core/SafeAssert.h"
 #include "wrappers/Task.hpp"
 
 #include <cstring>
@@ -15,21 +14,21 @@ extern "C" void StartDefaultTask(void *) // NOLINT
     static auto app = std::make_unique<Application>();
     app->run();
 
-    SafeAssert(false); // this line should be never reached
+    configASSERT(false); // this line should be never reached
 }
 
 //--------------------------------------------------------------------------------------------------
 Application::Application()
 {
     // Delegated Singleton, see getApplicationInstance() for further explanations
-    SafeAssert(instance == nullptr);
+    configASSERT(instance == nullptr);
     instance = this;
 
     registerCallbacks();
     determineAddressBits();
     setupCanBus();
 
-    statusLeds.ledRedGreen.setColorBlinking(util::led::binary::DualLedColor::Green, 0.5_Hz);
+    statusLed.ledRedGreen.setColorBlinking(util::led::binary::DualLedColor::Green, 0.5_Hz);
 }
 
 uint8_t txBuffer[64];
@@ -74,7 +73,7 @@ Application &Application::getApplicationInstance()
 void Application::registerCallbacks()
 {
     HAL_StatusTypeDef result = HAL_OK;
-    SafeAssert(result == HAL_OK);
+    configASSERT(result == HAL_OK);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,6 +91,7 @@ void Application::setupCanBus()
     filter.FilterType = FDCAN_FILTER_MASK;
     filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
     filter.FilterID2 = 0x7FF; // all 11 bits must match
+    filter.FilterIndex = 0;
     configASSERT(HAL_FDCAN_ConfigFilter(CanPeripherie, &filter) == HAL_OK);
 
     // helper lambda to configure a filter bank
@@ -103,7 +103,6 @@ void Application::setupCanBus()
     };
 
     // set can id filters
-
     if (controlPanelIndex == 0)
     {
         // special case for the main control panel
@@ -127,5 +126,5 @@ void Application::setupCanBus()
 //--------------------------------------------------------------------------------------------------
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan)
 {
-    Application::getApplicationInstance().canInterface.retrieveMessageFromFifo();
+    Application::getApplicationInstance().canInterface.receiveFifoMessageFromIsr();
 }

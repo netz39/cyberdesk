@@ -4,8 +4,8 @@
 #include "wrappers/StreamBuffer.hpp"
 #include "wrappers/Task.hpp"
 
+#include "LedStrip.hpp"
 #include "can/can_ids.hpp"
-#include "led/LedStrip.hpp"
 
 class MessageProcessor : public util::wrappers::TaskWithMemberFunctionBase
 {

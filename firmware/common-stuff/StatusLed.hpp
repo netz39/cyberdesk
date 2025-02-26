@@ -4,10 +4,10 @@
 #include "util/led/BinaryLed.hpp"
 #include "wrappers/Task.hpp"
 
-class StatusLeds : public util::wrappers::TaskWithMemberFunctionBase
+class StatusLed : public util::wrappers::TaskWithMemberFunctionBase
 {
 public:
-    StatusLeds(const util::Gpio &ledRedGpio, const util::Gpio &ledGreenGpio)
+    StatusLed(const util::Gpio &ledRedGpio, const util::Gpio &ledGreenGpio)
         : TaskWithMemberFunctionBase("statusLedTask", 128, osPriorityLow2), //
           ledRedGpio(ledRedGpio),                                           //
           ledGreenGpio(ledGreenGpio)                                        //

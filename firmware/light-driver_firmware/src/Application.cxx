@@ -4,7 +4,6 @@
 
 #include "Application.hpp"
 #include "can/can_ids.hpp"
-#include "core/SafeAssert.h"
 #include "sync.hpp"
 #include "wrappers/Task.hpp"
 
@@ -15,14 +14,14 @@ extern "C" void StartDefaultTask(void *) // NOLINT
     static auto app = std::make_unique<Application>();
     app->run();
 
-    SafeAssert(false); // this line should be never reached
+    configASSERT(false); // this line should be never reached
 }
 
 //--------------------------------------------------------------------------------------------------
 Application::Application()
 {
     // Delegated Singleton, see getApplicationInstance() for further explanations
-    SafeAssert(instance == nullptr);
+    configASSERT(instance == nullptr);
     instance = this;
 
     registerCallbacks();
@@ -62,7 +61,7 @@ void Application::registerCallbacks()
 {
     HAL_StatusTypeDef result = HAL_OK;
 
-    SafeAssert(result == HAL_OK);
+    configASSERT(result == HAL_OK);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +79,7 @@ void Application::setupCanBus()
     filter.FilterType = FDCAN_FILTER_MASK;
     filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
     filter.FilterID2 = 0x7FF; // all 11 bits must match
+    filter.FilterIndex = 0;
     configASSERT(HAL_FDCAN_ConfigFilter(CanPeripherie, &filter) == HAL_OK);
 
     // helper lambda to configure a filter bank

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "LedStrip.hpp"
 #include "MessageProcessor.hpp"
+#include "StatusLed.hpp"
 #include "can/CanInterface.hpp"
-#include "led/LedStrip.hpp"
-#include "led/StatusLeds.hpp"
 
 /// The entry point of users C++ firmware. This comes after CubeHAL and FreeRTOS initialization.
 /// All needed classes and objects have the root here.
@@ -36,7 +36,7 @@ public:
 
     static inline Application *instance{nullptr};
 
-    StatusLeds statusLeds{ledRedGpio, ledGreenGpio};
+    StatusLed statusLeds{ledRedGpio, ledGreenGpio};
     LedStrip ledStrip0{LedStrip0::PwmTimer, LedStrip0::WarmWhiteChannel, LedStrip0::ColdWhiteChannel};
     LedStrip ledStrip1{LedStrip1::PwmTimer, LedStrip1::WarmWhiteChannel, LedStrip1::ColdWhiteChannel};
     std::array<LedStrip *, 2> ledStrips{&ledStrip0, &ledStrip1};
