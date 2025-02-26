@@ -102,7 +102,8 @@ private:
 
         case can_id::IdBase::ColorTemperature:
         {
-            uint16_t colorTemperature = (rxData[1] << 8) | rxData[0];
+            units::si::Temperature colorTemperature;
+            colorTemperature.setMagnitude((rxData[1] << 8) | rxData[0]);
             setColorTemperature(colorTemperature, ledStripIndex);
         }
         break;
@@ -114,9 +115,19 @@ private:
 
     void setBrightness(uint8_t brightness, uint8_t ledStripIndex)
     {
+        if (ledStripIndex == 0)
+            ledStrip0.setGlobalBrightness(brightness);
+
+        else
+            ledStrip1.setGlobalBrightness(brightness);
     }
 
-    void setColorTemperature(uint16_t colorTemperature, uint8_t ledStripIndex)
+    void setColorTemperature(units::si::Temperature colorTemperature, uint8_t ledStripIndex)
     {
+        if (ledStripIndex == 0)
+            ledStrip0.setColorTemperature(colorTemperature);
+
+        else
+            ledStrip1.setColorTemperature(colorTemperature);
     }
 };
