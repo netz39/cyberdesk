@@ -2,6 +2,7 @@
 
 #include "StatusLed.hpp"
 #include "can/CanInterface.hpp"
+#include "led/FeedbackLedBar.hpp"
 
 /// The entry point of users C++ firmware. This comes after CubeHAL and FreeRTOS initialization.
 /// All needed classes and objects have the root here.
@@ -12,6 +13,7 @@ public:
     util::Gpio ledGreenGpio{ledGreen_GPIO_Port, ledGreen_Pin};
 
     static constexpr auto CanPeripherie = &hfdcan1;
+    static constexpr auto LedSpiPeripherie = &hspi1;
 
     Application();
     [[noreturn]] void run();
@@ -33,6 +35,7 @@ public:
     void determineAddressBits();
     void setupCanBus();
 
-    StatusLeds statusLeds{ledRedGpio, ledGreenGpio};
+    StatusLed statusLed{ledRedGpio, ledGreenGpio};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
+    FeedbackLedBar feedbackLedBar{LedSpiPeripherie};
 };

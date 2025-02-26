@@ -73,6 +73,11 @@ Application &Application::getApplicationInstance()
 void Application::registerCallbacks()
 {
     HAL_StatusTypeDef result = HAL_OK;
+
+    // SPI callback for addressable LEDs
+    result = HAL_SPI_RegisterCallback(LedSpiPeripherie, HAL_SPI_TX_COMPLETE_CB_ID, [](SPI_HandleTypeDef *)
+                                      { getApplicationInstance().feedbackLedBar.notifySpiIsFinished(); });
+
     configASSERT(result == HAL_OK);
 }
 
