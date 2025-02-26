@@ -22,7 +22,7 @@ protected:
         while (true)
         {
             ledRedGreen.updateState(lastWakeTime);
-            vTaskDelayUntil(&lastWakeTime, toOsTicks(100.0_Hz));
+            vTaskDelayUntil(&lastWakeTime, toOsTicks(50.0_Hz));
         }
     }
 

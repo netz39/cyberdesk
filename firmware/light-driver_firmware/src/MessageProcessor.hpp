@@ -114,7 +114,6 @@ private:
 
     void setBrightness(uint8_t brightness, uint8_t ledStripIndex)
     {
-        ledStrip0.turnOnWithFade();
     }
 
     void setColorTemperature(uint16_t colorTemperature, uint8_t ledStripIndex)
