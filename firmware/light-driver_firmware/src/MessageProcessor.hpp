@@ -11,11 +11,10 @@ class MessageProcessor : public util::wrappers::TaskWithMemberFunctionBase
 {
 
 public:
-    MessageProcessor(LedStrip &ledStrip0, LedStrip &ledStrip1, uint8_t &lightDriverIndex,
+    MessageProcessor(std::array<LedStrip *, 2> &ledStrips, uint8_t &lightDriverIndex,
                      util::wrappers::StreamBuffer &canBusRxStream, util::wrappers::StreamBuffer &canBusTxStream)
         : TaskWithMemberFunctionBase("MessageProcessor", 512, osPriorityAboveNormal6), //
-          ledStrip0(ledStrip0),                                                        //
-          ledStrip1(ledStrip1),                                                        //
+          ledStrips(ledStrips),                                                        //
           lightDriverIndex(lightDriverIndex),                                          //
           canBusRxStream(canBusRxStream),                                              //
           canBusTxStream(canBusTxStream)
@@ -83,8 +82,7 @@ protected:
     }
 
 private:
-    LedStrip &ledStrip0;
-    LedStrip &ledStrip1;
+    std::array<LedStrip *, 2> &ledStrips;
     uint8_t &lightDriverIndex;
     util::wrappers::StreamBuffer &canBusRxStream;
     util::wrappers::StreamBuffer &canBusTxStream;
@@ -115,19 +113,11 @@ private:
 
     void setBrightness(uint8_t brightness, uint8_t ledStripIndex)
     {
-        if (ledStripIndex == 0)
-            ledStrip0.setGlobalBrightness(brightness);
-
-        else
-            ledStrip1.setGlobalBrightness(brightness);
+        ledStrips[ledStripIndex]->setGlobalBrightness(brightness);
     }
 
     void setColorTemperature(units::si::Temperature colorTemperature, uint8_t ledStripIndex)
     {
-        if (ledStripIndex == 0)
-            ledStrip0.setColorTemperature(colorTemperature);
-
-        else
-            ledStrip1.setColorTemperature(colorTemperature);
+        ledStrips[ledStripIndex]->setColorTemperature(colorTemperature);
     }
 };

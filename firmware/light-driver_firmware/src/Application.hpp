@@ -39,6 +39,7 @@ public:
     StatusLeds statusLeds{ledRedGpio, ledGreenGpio};
     LedStrip ledStrip0{LedStrip0::PwmTimer, LedStrip0::WarmWhiteChannel, LedStrip0::ColdWhiteChannel};
     LedStrip ledStrip1{LedStrip1::PwmTimer, LedStrip1::WarmWhiteChannel, LedStrip1::ColdWhiteChannel};
+    std::array<LedStrip *, 2> ledStrips{&ledStrip0, &ledStrip1};
 
     util::Gpio addressBit0{addressBit0_GPIO_Port, addressBit0_Pin};
     util::Gpio addressBit1{addressBit1_GPIO_Port, addressBit1_Pin};
@@ -50,7 +51,7 @@ public:
     util::wrappers::StreamBuffer canBusTxStream{StreamBufferSize, 0};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
 
-    MessageProcessor messageProcessor{ledStrip0, ledStrip1, lightDriverIndex, canBusRxStream, canBusTxStream};
+    MessageProcessor messageProcessor{ledStrips, lightDriverIndex, canBusRxStream, canBusTxStream};
 
     void registerCallbacks();
     void determineAddressBits();
