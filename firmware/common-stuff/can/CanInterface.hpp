@@ -14,9 +14,9 @@ class CanInterface : public util::wrappers::TaskWithMemberFunctionBase
 public:
     CanInterface(FDCAN_HandleTypeDef *canPeripherie, util::wrappers::StreamBuffer &rxStream,
                  util::wrappers::StreamBuffer &txStream)
-        : TaskWithMemberFunctionBase("canBusTask", 1024, osPriorityAboveNormal4), //
-          canPeripherie(canPeripherie),                                           //
-          rxStream(rxStream),                                                     //
+        : TaskWithMemberFunctionBase("canBusTask", 512, osPriorityAboveNormal4), //
+          canPeripherie(canPeripherie),                                          //
+          rxStream(rxStream),                                                    //
           txStream(txStream)
     {
         configASSERT(canPeripherie != nullptr);

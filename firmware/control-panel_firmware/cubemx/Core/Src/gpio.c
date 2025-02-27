@@ -58,7 +58,7 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pins : Encoder2_Button_Pin Encoder1_Button_Pin */
   GPIO_InitStruct.Pin = Encoder2_Button_Pin|Encoder1_Button_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PC15 */
@@ -76,7 +76,7 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pins : Encoder0_Button_Pin Encoder3_Button_Pin */
   GPIO_InitStruct.Pin = Encoder0_Button_Pin|Encoder3_Button_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA3 PA4 PA5 PA6

@@ -13,7 +13,7 @@ class StateMachine : public util::wrappers::TaskWithMemberFunctionBase
 public:
     //-------------------------------------------------------------------------------------------------
     StateMachine(uint8_t address, CanMessageSender &canMessageSender, FeedbackLedBar &feedbackLedBar) //
-        : TaskWithMemberFunctionBase("stateMachine", 256, osPriorityBelowNormal4),                    //
+        : TaskWithMemberFunctionBase("stateMachine", 512, osPriorityBelowNormal4),                    //
           address(address),                                                                           //
           numberOfEncoders(address == 0 ? 4 : 2),                                                     //
           canMessageSender(canMessageSender),                                                         //
@@ -82,16 +82,17 @@ private:
             if (delta == 0)
                 continue;
 
+            const uint8_t LedIndex = encoderIndex / 2;
             switch (encoderIndex)
             {
             case 0:
             case 2:
-                updateBrightness(delta, encoderIndex / 2);
+                updateBrightness(delta, LedIndex);
                 break;
 
             case 1:
             case 3:
-                updateColorTemperature(delta, encoderIndex / 2);
+                updateColorTemperature(delta, LedIndex);
                 break;
 
             default:
@@ -115,7 +116,7 @@ private:
         colorTemperatureLevels[ledIndex] = //
             std::clamp(colorTemperatureLevels[ledIndex] + delta, 1, MaximumLevel);
 
-        publishColorTemperature(brightnessLevels[ledIndex], ledIndex);
+        publishColorTemperature(colorTemperatureLevels[ledIndex], ledIndex);
     }
 
     //-------------------------------------------------------------------------------------------------
@@ -155,7 +156,7 @@ private:
             // other control panels controls the short led strips on side
             canMessageSender.sendCanMessage(can_id::IdBase::Brightness, address, 1, percentage);
 
-        feedbackLedBar.showStatusAnimation.showColorTemperature(brightnessLevel);
+        feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
     }
 
     //-------------------------------------------------------------------------------------------------

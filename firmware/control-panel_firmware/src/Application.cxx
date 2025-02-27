@@ -38,25 +38,7 @@ uint8_t txBuffer[64];
     util::wrappers::Task::applicationIsReadyStartAllTasks();
     while (true)
     {
-        vTaskDelay(toOsTicks(5000.0_ms));
-        FDCAN_TxHeaderTypeDef txHeader;
-        txHeader.Identifier =
-            static_cast<uint8_t>(can_id::IdBase::Brightness) + controlPanelIndex * can_id::LightDriverOffset;
-        txHeader.DataLength = FDCAN_DLC_BYTES_1;
-        txHeader.TxFrameType = FDCAN_DATA_FRAME;
-        txHeader.IdType = FDCAN_STANDARD_ID;
-        txHeader.ErrorStateIndicator = FDCAN_ESI_PASSIVE;
-        txHeader.BitRateSwitch = FDCAN_BRS_OFF;
-        txHeader.FDFormat = FDCAN_CLASSIC_CAN;
-        txHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-        txHeader.MessageMarker = 0;
-
-        std::memcpy(txBuffer, &txHeader, sizeof(txHeader));
-        txBuffer[sizeof(txHeader)] = 0x12;
-
-        canBusTxStream.send(std::span(txBuffer, sizeof(txHeader) + 1), portMAX_DELAY);
-
-        // vTaskDelay(portMAX_DELAY);
+        vTaskDelay(portMAX_DELAY);
     }
 }
 

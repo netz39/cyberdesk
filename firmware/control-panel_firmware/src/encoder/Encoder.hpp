@@ -32,22 +32,27 @@ public:
     // ----------------------------------------------------------------------------
     int getEncoderDelta()
     {
+        constexpr auto ElectricalStepsPerMechanicalStep = 4;
+
         const uint16_t EncoderValue = __HAL_TIM_GET_COUNTER(encoderTimer);
         int diff = (EncoderValue - prevEncoderValue);
 
-        if (diff == 0 || gcem::abs(diff) < 4)
+        if (diff == 0 || gcem::abs(diff) < ElectricalStepsPerMechanicalStep)
             return 0;
 
         // handle underflow (transition 0 -> 65535)
         if (diff >= std::numeric_limits<uint16_t>::max() / 2)
-            diff = std::numeric_limits<uint16_t>::max() - diff;
+            diff = -1 * (std::numeric_limits<uint16_t>::max() - diff + 1);
 
         // handle overflow (transition 65535 -> 0)
         else if (diff <= -std::numeric_limits<uint16_t>::max() / 2)
-            diff = std::numeric_limits<uint16_t>::max() + diff;
+            diff = std::numeric_limits<uint16_t>::max() + diff + 1;
 
-        // quadrature encoder has 4 electrical steps per mechanic step
-        diff = (diff / 4);
+        // check if the encoder has been moved by at least one mechanical step
+        if (gcem::abs(diff) < ElectricalStepsPerMechanicalStep)
+            return 0;
+
+        diff = (diff / ElectricalStepsPerMechanicalStep);
         prevEncoderValue = EncoderValue;
 
         return diff;

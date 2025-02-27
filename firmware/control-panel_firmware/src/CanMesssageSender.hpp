@@ -19,6 +19,7 @@ public:
     {
         FDCAN_TxHeaderTypeDef txHeader;
         txHeader.Identifier = 0;
+        txHeader.IdType = FDCAN_STANDARD_ID;
         txHeader.TxFrameType = FDCAN_DATA_FRAME;
         txHeader.ErrorStateIndicator = FDCAN_ESI_PASSIVE;
         txHeader.BitRateSwitch = FDCAN_BRS_OFF;
@@ -52,7 +53,7 @@ public:
 
         std::memcpy(txBuffer, &txHeader, sizeof(txHeader));
 
-        canBusTxStream.send(txBuffer, sizeof(txHeader) + txHeader.DataLength);
+        canBusTxStream.send(std::span(txBuffer, sizeof(txHeader) + txHeader.DataLength), portMAX_DELAY);
     }
     //-------------------------------------------------------------------------------------------------
 

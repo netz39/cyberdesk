@@ -45,7 +45,6 @@ protected:
             if (targetAnimation->isAnimationFinished() && targetAnimation == &testAllColorsAnimation)
             {
                 targetAnimation = &showStatusAnimation;
-                showStatusAnimation.showColorTemperature(0);
                 break;
             }
 
