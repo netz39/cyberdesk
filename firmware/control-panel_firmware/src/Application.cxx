@@ -25,7 +25,6 @@ Application::Application()
     instance = this;
 
     registerCallbacks();
-    determineAddressBits();
     setupCanBus();
 
     statusLed.ledRedGreen.setColorBlinking(util::led::binary::DualLedColor::Green, 0.5_Hz);
@@ -82,10 +81,10 @@ void Application::registerCallbacks()
 }
 
 //--------------------------------------------------------------------------------------------------
-void Application::determineAddressBits()
+uint8_t Application::determineAddressBits()
 {
-    controlPanelIndex = 1;
-    // controlPanelIndex = addressBit0.read() ? 1 : 0 | addressBit1.read() ? 2 : 0 | addressBit2.read() ? 4 : 0;
+    controlPanelIndex = addressBit0.read() ? 1 : 0 | addressBit1.read() ? 2 : 0 | addressBit2.read() ? 4 : 0;
+    return controlPanelIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

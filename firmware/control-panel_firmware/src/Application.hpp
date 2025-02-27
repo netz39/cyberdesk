@@ -1,5 +1,6 @@
 #pragma once
 
+#include "StateMachine.hpp"
 #include "StatusLed.hpp"
 #include "can/CanInterface.hpp"
 #include "led/FeedbackLedBar.hpp"
@@ -32,10 +33,13 @@ public:
     uint8_t controlPanelIndex = 0;
 
     void registerCallbacks();
-    void determineAddressBits();
+    uint8_t determineAddressBits();
     void setupCanBus();
 
     StatusLed statusLed{ledRedGpio, ledGreenGpio};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
+
+    CanMessageSender canMessageSender{canBusTxStream};
     FeedbackLedBar feedbackLedBar{LedSpiPeripherie};
+    StateMachine stateMachine{determineAddressBits(), canMessageSender, feedbackLedBar};
 };
