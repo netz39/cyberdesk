@@ -63,6 +63,7 @@ void Application::registerCallbacks()
 }
 
 //--------------------------------------------------------------------------------------------------
+// Determine the address bits by reading three solder pads
 uint8_t Application::determineAddressBits()
 {
     controlPanelIndex = addressBit0.read() ? 1 : 0 | addressBit1.read() ? 2 : 0 | addressBit2.read() ? 4 : 0;

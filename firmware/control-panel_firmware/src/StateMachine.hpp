@@ -15,7 +15,7 @@ public:
     StateMachine(uint8_t address, CanMessageSender &canMessageSender, FeedbackLedBar &feedbackLedBar) //
         : TaskWithMemberFunctionBase("stateMachine", 512, osPriorityBelowNormal4),                    //
           address(address),                                                                           //
-          numberOfEncoders(address == 0 ? 4 : 2),                                                     //
+          numberOfEncoders(address == 0 ? 2 : 1),                                                     //
           canMessageSender(canMessageSender),                                                         //
           feedbackLedBar(feedbackLedBar),                                                             //
           encoderManager(numberOfEncoders)
@@ -23,8 +23,10 @@ public:
         // assign lambda to encoder button callbacks to insert encoder index
         for (size_t i = 0; i < numberOfEncoders; i++)
         {
-            encoderManager.encoders[i].setButtonCallback([this, i](util::Button::Action action)
-                                                         { commonButtonCallback(action, i); });
+            encoderManager.encoders[i].assignEncoderButtonCallback([this, i](util::Button::Action action)
+                                                                   { commonEncoderButtonCallback(action, i); });
+            encoderManager.encoders[i].assignPowerButtonCallback([this, i](util::Button::Action action)
+                                                                 { commonPowerButtonCallback(action, i); });
         }
     }
 
@@ -57,7 +59,7 @@ private:
     CanMessageSender &canMessageSender;
     FeedbackLedBar &feedbackLedBar;
     EncoderManager encoderManager;
-    std::array<int, 4> encoderDeltas;
+    std::array<int, 2> encoderDeltas;
 
     static constexpr auto NumberOfLedStrips = 2;
     static constexpr auto MaximumLevel = NumberOfFeedbackLeds;
@@ -72,6 +74,7 @@ private:
     std::array<uint8_t, NumberOfLedStrips> colorTemperatureLevels{DefaultColorTemperatureLevel, //
                                                                   DefaultColorTemperatureLevel};
     std::array<bool, NumberOfLedStrips> powerState{false, false};
+    std::array<bool, NumberOfLedStrips> isInColorChangeState{false, false};
 
     //-------------------------------------------------------------------------------------------------
     void handleEncoderDeltas()
@@ -82,22 +85,13 @@ private:
             if (delta == 0)
                 continue;
 
-            const uint8_t LedIndex = encoderIndex / 2;
-            switch (encoderIndex)
-            {
-            case 0:
-            case 2:
-                updateBrightness(delta, LedIndex);
-                break;
+            const uint8_t LedIndex = encoderIndex;
+            powerState[LedIndex] = true; // turn on led strip if encoder is moved
 
-            case 1:
-            case 3:
+            if (isInColorChangeState[LedIndex])
                 updateColorTemperature(delta, LedIndex);
-                break;
-
-            default:
-                break;
-            }
+            else
+                updateBrightness(delta, LedIndex);
         }
     }
 
@@ -179,9 +173,41 @@ private:
     }
 
     //-------------------------------------------------------------------------------------------------
-    void commonButtonCallback(util::Button::Action action, size_t encoderIndex)
+    void commonEncoderButtonCallback(util::Button::Action action, size_t encoderIndex)
     {
-        const uint8_t LedIndex = encoderIndex / 2;
+        const uint8_t LedIndex = encoderIndex;
+        switch (action)
+        {
+        case util::Button::Action::ShortPress:
+        {
+            // toggle between brightness and color change mode
+            isInColorChangeState[LedIndex] = !isInColorChangeState[LedIndex];
+
+            if (isInColorChangeState[LedIndex])
+                feedbackLedBar.showStatusAnimation.showColorTemperature(colorTemperatureLevels[LedIndex]);
+
+            else
+                feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevels[LedIndex]);
+        }
+        break;
+
+        case util::Button::Action::LongPress:
+        {
+            if (isInColorChangeState[LedIndex])
+                resetColorTemperatureToDefault(LedIndex);
+
+            else
+                resetBrightnessToDefault(LedIndex);
+        }
+        default:
+            break;
+        }
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void commonPowerButtonCallback(util::Button::Action action, size_t encoderIndex)
+    {
+        const uint8_t LedIndex = encoderIndex;
         switch (action)
         {
         case util::Button::Action::ShortPress:
@@ -189,23 +215,10 @@ private:
             break;
 
         case util::Button::Action::LongPress:
-        {
-            switch (encoderIndex)
-            {
-            case 0:
-            case 2:
-                resetBrightnessToDefault(LedIndex);
-                break;
+            resetBrightnessToDefault(LedIndex);
+            resetColorTemperatureToDefault(LedIndex);
+            break;
 
-            case 1:
-            case 3:
-                resetColorTemperatureToDefault(LedIndex);
-                break;
-
-            default:
-                break;
-            }
-        }
         default:
             break;
         }

@@ -10,9 +10,10 @@
 class Encoder
 {
 public:
-    Encoder(TIM_HandleTypeDef *encoderTimer, util::Button &encoderButton) //
-        : encoderTimer(encoderTimer),                                     //
-          encoderButton(encoderButton)
+    Encoder(TIM_HandleTypeDef *encoderTimer, util::Button &encoderButton, util::Button &powerButton) //
+        : encoderTimer(encoderTimer),                                                                //
+          encoderButton(encoderButton),                                                              //
+          powerButton(powerButton)
     {
         configASSERT(encoderTimer != nullptr);
     }
@@ -27,6 +28,7 @@ public:
     void handleButtonSampling(units::si::Time buttonSamplingInterval)
     {
         encoderButton.update(buttonSamplingInterval);
+        powerButton.update(buttonSamplingInterval);
     }
 
     // ----------------------------------------------------------------------------
@@ -59,14 +61,21 @@ public:
     }
 
     // ----------------------------------------------------------------------------
-    void setButtonCallback(std::function<void(util::Button::Action)> callback)
+    void assignEncoderButtonCallback(std::function<void(util::Button::Action)> callback)
     {
         encoderButton.setCallback(callback);
+    }
+
+    // ----------------------------------------------------------------------------
+    void assignPowerButtonCallback(std::function<void(util::Button::Action)> callback)
+    {
+        powerButton.setCallback(callback);
     }
 
 private:
     TIM_HandleTypeDef *encoderTimer = nullptr;
     util::Button &encoderButton;
+    util::Button &powerButton;
 
     uint16_t prevEncoderValue = 0;
 };
