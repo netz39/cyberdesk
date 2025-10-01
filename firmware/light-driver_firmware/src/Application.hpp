@@ -10,10 +10,14 @@
 class Application
 {
 public:
-    const util::Gpio ledRedGpio{ledRed_GPIO_Port, ledRed_Pin};
-    const util::Gpio ledGreenGpio{ledGreen_GPIO_Port, ledGreen_Pin};
-
     static constexpr auto CanPeripherie = &hfdcan1;
+
+    struct LedRedGreen
+    {
+        static constexpr auto PwmTimer = &htim1;
+        static constexpr auto RedChannel = TIM_CHANNEL_1;
+        static constexpr auto GreenChannel = TIM_CHANNEL_2;
+    };
 
     struct LedStrip0
     {
@@ -36,7 +40,7 @@ public:
 
     static inline Application *instance{nullptr};
 
-    StatusLed statusLeds{ledRedGpio, ledGreenGpio};
+    StatusLed statusLeds{LedRedGreen::PwmTimer, LedRedGreen::RedChannel, LedRedGreen::GreenChannel};
     LedStrip ledStrip0{LedStrip0::PwmTimer, LedStrip0::WarmWhiteChannel, LedStrip0::ColdWhiteChannel};
     LedStrip ledStrip1{LedStrip1::PwmTimer, LedStrip1::WarmWhiteChannel, LedStrip1::ColdWhiteChannel};
     std::array<LedStrip *, 2> ledStrips{&ledStrip0, &ledStrip1};

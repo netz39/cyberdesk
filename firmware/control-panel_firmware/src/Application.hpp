@@ -10,8 +10,12 @@
 class Application
 {
 public:
-    util::Gpio ledRedGpio{ledRed_GPIO_Port, ledRed_Pin};
-    util::Gpio ledGreenGpio{ledGreen_GPIO_Port, ledGreen_Pin};
+    struct LedRedGreen
+    {
+        static constexpr auto PwmTimer = &htim1;
+        static constexpr auto RedChannel = TIM_CHANNEL_3;
+        static constexpr auto GreenChannel = TIM_CHANNEL_4;
+    };
 
     static constexpr auto CanPeripherie = &hfdcan1;
     static constexpr auto LedSpiPeripherie = &hspi1;
@@ -36,7 +40,7 @@ public:
     uint8_t determineAddressBits();
     void setupCanBus();
 
-    StatusLed statusLed{ledRedGpio, ledGreenGpio};
+    StatusLed statusLed{LedRedGreen::PwmTimer, LedRedGreen::RedChannel, LedRedGreen::GreenChannel};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
 
     CanMessageSender canMessageSender{canBusTxStream};

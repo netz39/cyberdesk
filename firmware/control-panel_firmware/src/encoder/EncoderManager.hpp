@@ -33,6 +33,6 @@ public:
 
     std::array<Encoder, 2> encoders{
         Encoder{&htim2, encoderButtons[0], powerButtons[0]}, // encoder SW1 with power button SW2 on PCB
-        Encoder{&htim3, encoderButtons[1], powerButtons[1]}  // encoder SW3 with power button SW4 on PCB
+        Encoder{&htim4, encoderButtons[1], powerButtons[1]}  // encoder SW3 with power button SW4 on PCB
     };
 };

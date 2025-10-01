@@ -71,10 +71,11 @@ private:
     // APB for timers: 64MHz -> 1024 PWM steps and prescaler (2+1) -> 20.83kHz PWM frequency
     static constexpr size_t PwmSteps = 1024;
     static constexpr auto ResolutionBits = std::bit_width<size_t>(PwmSteps - 1);
-    using GammaCorrection_t = util::led::pwm::GammaCorrection<ResolutionBits, 10.0f>;
-    static constexpr GammaCorrection_t GammaCorrection{};
+    using LedGammaCorrection =
+        util::led::pwm::GammaCorrection<ResolutionBits, 10.0f>; // add slight offset (10.0f) to avoid complete darkness
+    static constexpr LedGammaCorrection GammaCorrection{};
 
-    using SingleLed = util::led::pwm::SingleLed<ResolutionBits, GammaCorrection_t>;
+    using SingleLed = util::led::pwm::SingleLed<ResolutionBits, LedGammaCorrection>;
 
     SingleLed warmWhiteLedStrip{util::PwmOutput<ResolutionBits>{ledTimerHandle, warmWhiteChannel}, GammaCorrection};
     SingleLed coldWhiteLedStrip{util::PwmOutput<ResolutionBits>{ledTimerHandle, coldWhiteChannel}, GammaCorrection};

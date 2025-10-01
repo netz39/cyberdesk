@@ -7,11 +7,13 @@
 class StatusLed : public util::wrappers::TaskWithMemberFunctionBase
 {
 public:
-    StatusLed(const util::Gpio &ledRedGpio, const util::Gpio &ledGreenGpio)
+    StatusLed(TIM_HandleTypeDef *const LedTimerHandle, const uint32_t &RedChannel, const uint32_t &GreenChannel)
         : TaskWithMemberFunctionBase("statusLedTask", 128, osPriorityLow2), //
-          ledRedGpio(ledRedGpio),                                           //
-          ledGreenGpio(ledGreenGpio)                                        //
+          LedTimerHandle(LedTimerHandle),                                   //
+          RedChannel(RedChannel),                                           //
+          GreenChannel(GreenChannel)                                        //
     {
+        configASSERT(this->LedTimerHandle != nullptr);
     }
 
 protected:
@@ -27,11 +29,17 @@ protected:
     }
 
 private:
-    const util::Gpio &ledRedGpio;
-    const util::Gpio &ledGreenGpio;
+    TIM_HandleTypeDef *const LedTimerHandle = nullptr;
+    const uint32_t &RedChannel;
+    const uint32_t &GreenChannel;
+
+    static constexpr auto PwmSteps = 256;
+    static constexpr auto ResolutionBits = std::bit_width<size_t>(PwmSteps - 1);
+    using LedGammaCorrection = util::led::pwm::GammaCorrection<ResolutionBits>;
+    static constexpr LedGammaCorrection GammaCorrection{};
 
 public:
-    using DualLed = util::led::binary::DualLed;
-
-    DualLed ledRedGreen{ledRedGpio, ledGreenGpio};
+    using DualLed = util::led::pwm::DualLed<ResolutionBits, LedGammaCorrection>;
+    DualLed ledRedGreen{util::PwmOutput<ResolutionBits>{LedTimerHandle, RedChannel},
+                        util::PwmOutput<ResolutionBits>{LedTimerHandle, GreenChannel}, GammaCorrection};
 };

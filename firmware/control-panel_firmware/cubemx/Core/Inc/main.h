@@ -71,10 +71,6 @@ void Error_Handler(void);
 #define addressBit1_GPIO_Port GPIOB
 #define addressBit2_Pin GPIO_PIN_2
 #define addressBit2_GPIO_Port GPIOB
-#define Encoder1_A_Pin GPIO_PIN_8
-#define Encoder1_A_GPIO_Port GPIOA
-#define Encoder1_B_Pin GPIO_PIN_9
-#define Encoder1_B_GPIO_Port GPIOA
 #define Encoder1_Button_Pin GPIO_PIN_6
 #define Encoder1_Button_GPIO_Port GPIOC
 #define ledRed_Pin GPIO_PIN_10
@@ -83,10 +79,6 @@ void Error_Handler(void);
 #define ledGreen_GPIO_Port GPIOA
 #define Encoder3_Button_Pin GPIO_PIN_15
 #define Encoder3_Button_GPIO_Port GPIOA
-#define Encoder3_A_Pin GPIO_PIN_4
-#define Encoder3_A_GPIO_Port GPIOB
-#define Encoder3_B_Pin GPIO_PIN_5
-#define Encoder3_B_GPIO_Port GPIOB
 #define Encoder2_A_Pin GPIO_PIN_6
 #define Encoder2_A_GPIO_Port GPIOB
 #define Encoder2_B_Pin GPIO_PIN_7

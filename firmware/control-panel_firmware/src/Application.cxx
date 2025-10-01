@@ -27,7 +27,8 @@ Application::Application()
     registerCallbacks();
     setupCanBus();
 
-    statusLed.ledRedGreen.setColorBlinking(util::led::binary::DualLedColor::Green, 0.5_Hz);
+    statusLed.ledRedGreen.setBrightness(25);
+    statusLed.ledRedGreen.setColor(util::led::pwm::DualLedColor::Green);
 }
 
 uint8_t txBuffer[64];

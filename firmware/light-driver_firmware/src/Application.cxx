@@ -30,12 +30,14 @@ Application::Application()
     if (lightDriverIndex == 0)
     {
         // no address bits set, this is not allowed on light driver boards
-        statusLeds.ledRedGreen.setColorBlinking(util::led::binary::DualLedColor::Red, 2.0_Hz);
+        statusLeds.ledRedGreen.setBrightness(100);
+        statusLeds.ledRedGreen.setColorBlinking(util::led::pwm::DualLedColor::Red, 2.0_Hz);
         return;
     }
 
     setupCanBus();
-    statusLeds.ledRedGreen.setColorBlinking(util::led::binary::DualLedColor::Green, 0.5_Hz);
+    statusLeds.ledRedGreen.setBrightness(25);
+    statusLeds.ledRedGreen.setColor(util::led::pwm::DualLedColor::Green);
 }
 
 //--------------------------------------------------------------------------------------------------
