@@ -44,7 +44,7 @@
  *----------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
-#include "core/fault_handler.h"
+#include "../../../../common-stuff/core/include/core/fault_handler.h" // because CubeMX fucked up cmake
 /* USER CODE END Includes */
 
 /* Ensure definitions are only used by the compiler, and not by the assembler. */
