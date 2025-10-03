@@ -117,6 +117,7 @@ private:
     void togglePower(size_t ledIndex)
     {
         powerState[ledIndex] = !powerState[ledIndex];
+        isInColorChangeState[ledIndex] = false; // reset to brightness mode on power toggle
         publishBrightness(powerState[ledIndex] ? brightnessLevels[ledIndex] : 0, ledIndex);
     }
 
@@ -215,8 +216,9 @@ private:
             break;
 
         case util::Button::Action::LongPress:
-            resetBrightnessToDefault(LedIndex);
+            powerState[LedIndex] = true;
             resetColorTemperatureToDefault(LedIndex);
+            resetBrightnessToDefault(LedIndex);
             break;
 
         default:
