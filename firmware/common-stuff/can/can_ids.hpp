@@ -19,10 +19,12 @@ enum class IdBase : uint8_t
 // can id examples:
 //
 // brightness message to LightDriver1 and LedStrip0 (long side)
-// 0x11 + 1*0x10 + 0*0x05 = 0x21
+// Brightness command + 1 * LightDriverOffset + 0 * LedStripOffset
+// 0x11 + 1 * 0x10 + 0 * 0x05 = 0x21
 //
 // color temperature message to LightDriver2 and LedStrip1 (short side)
-// 0x12 + 2*0x10 + 1*0x05 = 0x37
+// ColorTemperature command + 2 * LightDriverOffset + 1 * LedStripOffset
+// 0x12 + 2 * 0x10 + 1 * 0x05 = 0x37
 //
 // global control - set all strips to same brightness
 // 0x11

@@ -39,6 +39,11 @@ inline constexpr BgrColor operator+(const BgrColor &lhs, const BgrColor &rhs)
     return result;
 }
 
+inline constexpr bool operator==(const BgrColor &lhs, const BgrColor &rhs)
+{
+    return (lhs.blue == rhs.blue) && (lhs.green == rhs.green) && (lhs.red == rhs.red);
+}
+
 constexpr BgrColor ColorOff{0, 0, 0};
 
 constexpr BgrColor Red{0, 0, 255};

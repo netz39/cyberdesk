@@ -22,10 +22,10 @@ public:
         fadingAnimation.setFadingTime(150.0_ms);
 
         for (size_t i = 0; i < lastLedIndex; i++)
-            fadingAnimation.targetLedData[i] = 0.5 * NeutralWhite;
+            fadingAnimation.updateTargetLedPixel(i, 0.5 * NeutralWhite);
 
         for (size_t i = lastLedIndex; i < NumberOfFeedbackLeds; i++)
-            fadingAnimation.targetLedData[i] = 0.05 * Blue;
+            fadingAnimation.updateTargetLedPixel(i, 0.05 * Blue);
 
         resetAnimation();
     }
@@ -44,9 +44,9 @@ public:
             BgrColor{255, 150, 100}, BgrColor{255, 100, 100}, BgrColor{255, 100, 50},  BgrColor{255, 50, 0}};
 
         for (size_t i = 0; i < NumberOfFeedbackLeds; i++)
-            fadingAnimation.targetLedData[i] = 0.2 * templateColors[i];
+            fadingAnimation.updateTargetLedPixel(i, 0.2 * templateColors[i]);
 
-        fadingAnimation.targetLedData[currentLedPosition - 1] = 0.8 * templateColors[currentLedPosition - 1];
+        fadingAnimation.updateTargetLedPixel(currentLedPosition - 1, 0.8 * templateColors[currentLedPosition - 1]);
 
         resetAnimation();
     }
@@ -56,7 +56,7 @@ public:
         fadingAnimation.setFadingTime(300.0_ms);
 
         for (size_t i = 0; i < NumberOfFeedbackLeds; i++)
-            fadingAnimation.targetLedData[i] = ColorOff;
+            fadingAnimation.updateTargetLedPixel(i, std::move(ColorOff));
 
         triggerFading();
     }

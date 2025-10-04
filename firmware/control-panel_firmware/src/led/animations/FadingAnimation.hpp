@@ -14,46 +14,50 @@ public:
         if (isAnimationFinished())
             return;
 
-        // apply difference multiplied by factor to current data
-        float factor = static_cast<float>(fadeProgress) / numberOfSteps;
+        bool anyFading = false;
+
         for (uint32_t i = 0; i < NumberOfFeedbackLeds; i++)
         {
-            if (diffLedData[i].red == 0 && diffLedData[i].green == 0 && diffLedData[i].blue == 0)
+            if (fadeSteps[i] == 0)
                 continue;
 
+            anyFading = true;
+            fadeSteps[i]--;
+
+            // apply difference multiplied by progress factor to current data
+            float factor = static_cast<float>(fadeSteps[i]) / numberOfSteps;
             ledData[i] = targetLedData[i] + factor * diffLedData[i];
         }
 
-        if (fadeProgress == 0)
+        if (!anyFading)
             animationIsFinished();
-
-        else
-            fadeProgress--;
     }
 
     void setFadingTime(units::si::Time fadingTime)
     {
         this->fadingTime = fadingTime;
+        numberOfSteps = (fadingTime / RefreshTime).getMagnitude();
     }
 
-    void setTargetLedData(LedSegmentArray newData)
+    // update target color and calculate fading parameters of a specific led
+    void updateTargetLedPixel(uint8_t index, const BgrColor &&color)
     {
-        std::memcpy(targetLedData.data(), newData.data(), NumberOfFeedbackLeds * sizeof(BgrColor));
-    }
+        if (index >= NumberOfFeedbackLeds)
+            return;
 
-    std::array<BgrColor, NumberOfFeedbackLeds> targetLedData;
+        // only update fading parameters if target changes
+        if (targetLedData[index] == color)
+            return;
+
+        targetLedData[index] = color;
+        diffLedData[index] = ledData[index] - targetLedData[index];
+        fadeSteps[index] = numberOfSteps;
+    }
 
 protected:
     void resetInheritedAnimation() override
     {
         setDelay(RefreshTime);
-
-        numberOfSteps = (fadingTime / RefreshTime).getMagnitude();
-        fadeProgress = numberOfSteps - 1;
-
-        // calc difference between current and target data
-        for (uint32_t i = 0; i < NumberOfFeedbackLeds; i++)
-            diffLedData[i] = ledData[i] - targetLedData[i];
     }
 
 private:
@@ -62,8 +66,9 @@ private:
     LedSegmentArray &ledData;
 
     std::array<BgrColorDiff, NumberOfFeedbackLeds> diffLedData;
+    std::array<BgrColor, NumberOfFeedbackLeds> targetLedData;
+    std::array<size_t, NumberOfFeedbackLeds> fadeSteps;
 
-    size_t numberOfSteps = 0;
-    size_t fadeProgress = 0;
     units::si::Time fadingTime{0.0};
+    size_t numberOfSteps = 0;
 };
