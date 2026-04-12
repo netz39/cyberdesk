@@ -11,11 +11,11 @@ class MessageProcessor : public util::wrappers::TaskWithMemberFunctionBase
 {
 
 public:
-    MessageProcessor(std::array<LedStrip *, 2> &ledStrips, uint8_t &lightDriverIndex,
+    MessageProcessor(std::array<LedStrip *, 2> &ledStrips, const uint8_t LightDriverIndex,
                      util::wrappers::StreamBuffer &canBusRxStream, util::wrappers::StreamBuffer &canBusTxStream)
         : TaskWithMemberFunctionBase("MessageProcessor", 512, osPriorityAboveNormal6), //
           ledStrips(ledStrips),                                                        //
-          lightDriverIndex(lightDriverIndex),                                          //
+          LightDriverIndex(LightDriverIndex),                                          //
           canBusRxStream(canBusRxStream),                                              //
           canBusTxStream(canBusTxStream)
     {
@@ -54,55 +54,49 @@ protected:
 
             uint8_t *rxData = messageBuffer + sizeof(FDCAN_RxHeaderTypeDef);
 
-            if (rxHeader->Identifier < static_cast<uint8_t>(can_id::IdBase::Status) + can_id::LightDriverOffset)
+            // decode CAN ID and determine command and target LED strip
+            std::optional<can_id::DecodedId> decodedId = can_id::decodeId(rxHeader->Identifier);
+
+            if (!decodedId.has_value())
+                // received message with invalid ID, ignore
+                continue;
+
+            if (decodedId->isGlobal)
             {
-                // global control message for all strips
-                if (rxHeader->Identifier <= static_cast<uint8_t>(can_id::IdBase::Reserved2))
-                {
-                    can_id::IdBase command = static_cast<can_id::IdBase>(rxHeader->Identifier);
-                    // control both strips
-                    processCommand(command, rxData, 0);
-                    processCommand(command, rxData, 1);
-                }
+                // global command, apply to all strips
+                processCommand(decodedId->command, rxData, can_id::LedType::LongSide);
+                processCommand(decodedId->command, rxData, can_id::LedType::ShortSide);
             }
-            else
+            else if (decodedId->ledDriverIndex == LightDriverIndex)
             {
-                uint8_t command = rxHeader->Identifier - lightDriverIndex * can_id::LightDriverOffset;
-                uint8_t ledStripIndex = 0;
-
-                if (command > static_cast<uint8_t>(can_id::IdBase::Reserved2))
-                {
-                    ledStripIndex = 1;
-                    command -= can_id::LedStripOffset;
-                }
-
-                processCommand(static_cast<can_id::IdBase>(command), rxData, ledStripIndex);
+                // command for specific strip
+                processCommand(decodedId->command, rxData, decodedId->ledType);
             }
         }
     }
 
 private:
     std::array<LedStrip *, 2> &ledStrips;
-    uint8_t &lightDriverIndex;
+    const uint8_t LightDriverIndex;
     util::wrappers::StreamBuffer &canBusRxStream;
     util::wrappers::StreamBuffer &canBusTxStream;
 
     static constexpr auto BufferSize = 64;
     uint8_t messageBuffer[BufferSize];
 
-    void processCommand(can_id::IdBase command, uint8_t *rxData, uint8_t ledStripIndex)
+    void processCommand(can_id::IdBase command, uint8_t *rxData, can_id::LedType ledType)
     {
         switch (command)
         {
         case can_id::IdBase::Brightness:
-            setBrightness(rxData[0], ledStripIndex);
+            setBrightness(rxData[0], ledType);
             break;
 
         case can_id::IdBase::ColorTemperature:
         {
             units::si::Temperature colorTemperature;
             colorTemperature.setMagnitude((rxData[1] << 8) | rxData[0]);
-            setColorTemperature(colorTemperature, ledStripIndex);
+            setColorTemperature(colorTemperature, ledType);
         }
         break;
 
@@ -111,13 +105,13 @@ private:
         }
     }
 
-    void setBrightness(uint8_t brightness, uint8_t ledStripIndex)
+    void setBrightness(uint8_t brightness, can_id::LedType ledType)
     {
-        ledStrips[ledStripIndex]->setGlobalBrightness(brightness);
+        ledStrips[ledType == can_id::LedType::LongSide ? 0 : 1]->setGlobalBrightness(brightness);
     }
 
-    void setColorTemperature(units::si::Temperature colorTemperature, uint8_t ledStripIndex)
+    void setColorTemperature(units::si::Temperature colorTemperature, can_id::LedType ledType)
     {
-        ledStrips[ledStripIndex]->setColorTemperature(colorTemperature);
+        ledStrips[ledType == can_id::LedType::LongSide ? 0 : 1]->setColorTemperature(colorTemperature);
     }
 };

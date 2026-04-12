@@ -26,16 +26,8 @@ Application::Application()
 
     registerCallbacks();
     determineAddressBits();
-
-    if (lightDriverIndex == 0)
-    {
-        // no address bits set, this is not allowed on light driver boards
-        statusLeds.ledRedGreen.setBrightness(100);
-        statusLeds.ledRedGreen.setColorBlinking(util::led::pwm::DualLedColor::Red, 2.0_Hz);
-        return;
-    }
-
     setupCanBus();
+
     statusLeds.ledRedGreen.setBrightness(25);
     statusLeds.ledRedGreen.setColor(util::led::pwm::DualLedColor::Green);
 }
@@ -67,10 +59,12 @@ void Application::registerCallbacks()
 }
 
 //--------------------------------------------------------------------------------------------------
-void Application::determineAddressBits()
+uint8_t Application::determineAddressBits()
 {
-    lightDriverIndex = 1;
-    // lightDriverIndex = addressBit0.read() ? 1 : 0 | addressBit1.read() ? 2 : 0 | addressBit2.read() ? 4 : 0;
+    uint8_t address = addressBit0.read() ? 1 : 0 | addressBit1.read() ? 2 : 0 | addressBit2.read() ? 4 : 0;
+    configASSERT(address != 0); // address bits cannot all be zero for light drivers
+
+    return address;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,12 +92,14 @@ void Application::setupCanBus()
     configureFilter(static_cast<uint8_t>(can_id::IdBase::ColorTemperature), 1);
 
     // light driver specific messages
-    const auto LightDriverOffset = lightDriverIndex * can_id::LightDriverOffset;
-    configureFilter(static_cast<uint8_t>(can_id::IdBase::Brightness) + LightDriverOffset, 2);
-    configureFilter(static_cast<uint8_t>(can_id::IdBase::ColorTemperature) + LightDriverOffset, 3);
-    configureFilter(static_cast<uint8_t>(can_id::IdBase::Brightness) + LightDriverOffset + can_id::LedStripOffset, 4);
-    configureFilter(static_cast<uint8_t>(can_id::IdBase::ColorTemperature) + LightDriverOffset + can_id::LedStripOffset,
-                    5);
+    const auto LightDriverOffset = LightDriverIndex * can_id::LightDriverOffset;
+    const auto LongSideOffset = LightDriverOffset + static_cast<uint8_t>(can_id::LedType::LongSide);
+    const auto ShortSideOffset = LightDriverOffset + static_cast<uint8_t>(can_id::LedType::ShortSide);
+
+    configureFilter(static_cast<uint8_t>(can_id::IdBase::Brightness) + LongSideOffset, 2);
+    configureFilter(static_cast<uint8_t>(can_id::IdBase::ColorTemperature) + LongSideOffset, 3);
+    configureFilter(static_cast<uint8_t>(can_id::IdBase::Brightness) + ShortSideOffset, 4);
+    configureFilter(static_cast<uint8_t>(can_id::IdBase::ColorTemperature) + ShortSideOffset, 5);
 
     configASSERT(HAL_FDCAN_Start(CanPeripherie) == HAL_OK);
     configASSERT(HAL_FDCAN_ActivateNotification(CanPeripherie, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) == HAL_OK);

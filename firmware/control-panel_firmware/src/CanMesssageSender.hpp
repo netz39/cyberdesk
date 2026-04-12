@@ -29,13 +29,10 @@ public:
     }
 
     //-------------------------------------------------------------------------------------------------
-    void sendCanMessage(can_id::IdBase baseCommand, uint8_t lightDriverIndex, uint8_t ledStripIndex, uint16_t payload)
+    void sendMessage(can_id::IdBase baseCommand, uint8_t lightDriverIndex, can_id::LedType ledType, uint16_t payload)
     {
         FDCAN_TxHeaderTypeDef txHeader = createDefaultTxHeader();
-
-        auto finalCommand = static_cast<uint32_t>(baseCommand) + lightDriverIndex * can_id::LightDriverOffset +
-                            ledStripIndex * can_id::LedStripOffset;
-        txHeader.Identifier = finalCommand;
+        txHeader.Identifier = can_id::buildId(baseCommand, lightDriverIndex, ledType);
 
         if (baseCommand == can_id::IdBase::Brightness)
         {
@@ -53,9 +50,21 @@ public:
 
         std::memcpy(txBuffer, &txHeader, sizeof(txHeader));
 
-        canBusTxStream.send(std::span(txBuffer, sizeof(txHeader) + txHeader.DataLength), portMAX_DELAY);
+        // send without block because multiple tasks may use this
+        canBusTxStream.send(std::span(txBuffer, sizeof(txHeader) + txHeader.DataLength), 0);
     }
+
     //-------------------------------------------------------------------------------------------------
+    void sendBrightnessMessage(uint8_t lightDriverIndex, can_id::LedType ledType, uint8_t brightness)
+    {
+        sendMessage(can_id::IdBase::Brightness, lightDriverIndex, ledType, brightness);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void sendColorTemperatureMessage(uint8_t lightDriverIndex, can_id::LedType ledType, uint16_t colorTemperature)
+    {
+        sendMessage(can_id::IdBase::ColorTemperature, lightDriverIndex, ledType, colorTemperature);
+    }
 
 private:
     util::wrappers::StreamBuffer &canBusTxStream;

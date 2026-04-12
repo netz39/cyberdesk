@@ -48,16 +48,16 @@ public:
     util::Gpio addressBit0{addressBit0_GPIO_Port, addressBit0_Pin};
     util::Gpio addressBit1{addressBit1_GPIO_Port, addressBit1_Pin};
     util::Gpio addressBit2{addressBit2_GPIO_Port, addressBit2_Pin};
-    uint8_t lightDriverIndex = 0;
+    const uint8_t LightDriverIndex{determineAddressBits()};
 
     static constexpr auto StreamBufferSize = 256;
     util::wrappers::StreamBuffer canBusRxStream{StreamBufferSize, 0};
     util::wrappers::StreamBuffer canBusTxStream{StreamBufferSize, 0};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
 
-    MessageProcessor messageProcessor{ledStrips, lightDriverIndex, canBusRxStream, canBusTxStream};
+    MessageProcessor messageProcessor{ledStrips, LightDriverIndex, canBusRxStream, canBusTxStream};
 
     void registerCallbacks();
-    void determineAddressBits();
+    uint8_t determineAddressBits();
     void setupCanBus();
 };

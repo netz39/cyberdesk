@@ -27,23 +27,28 @@ public:
 
     static inline Application *instance{nullptr};
 
+    util::Gpio addressBit0{addressBit0_GPIO_Port, addressBit0_Pin};
+    util::Gpio addressBit1{addressBit1_GPIO_Port, addressBit1_Pin};
+    util::Gpio addressBit2{addressBit2_GPIO_Port, addressBit2_Pin};
+
+    // clang-format off
+    // Determine the control panel index at startup by reading the three solder pads
+    const size_t ControlPanelIndex{addressBit0.read() ? 1U : 0U 
+                                 | addressBit1.read() ? 2U : 0U 
+                                 | addressBit2.read() ? 4U : 0U};
+    // clang-format on
+
     static constexpr size_t CanBusBufferSize = 128;
     util::wrappers::StreamBuffer canBusRxStream{CanBusBufferSize, 0};
     util::wrappers::StreamBuffer canBusTxStream{CanBusBufferSize, 0};
 
-    util::Gpio addressBit0{addressBit0_GPIO_Port, addressBit0_Pin};
-    util::Gpio addressBit1{addressBit1_GPIO_Port, addressBit1_Pin};
-    util::Gpio addressBit2{addressBit2_GPIO_Port, addressBit2_Pin};
-    uint8_t controlPanelIndex = 0;
-
-    void registerCallbacks();
-    uint8_t determineAddressBits();
-    void setupCanBus();
-
     StatusLed statusLed{LedRedGreen::PwmTimer, LedRedGreen::RedChannel, LedRedGreen::GreenChannel};
     CanInterface canInterface{CanPeripherie, canBusRxStream, canBusTxStream};
-
     CanMessageSender canMessageSender{canBusTxStream};
+
     FeedbackLedBar feedbackLedBar{LedSpiPeripherie};
-    StateMachine stateMachine{determineAddressBits(), canMessageSender, feedbackLedBar};
+    StateMachine stateMachine{ControlPanelIndex, canMessageSender, feedbackLedBar};
+
+    void registerCallbacks();
+    void setupCanBus();
 };

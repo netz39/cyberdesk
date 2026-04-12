@@ -31,8 +31,6 @@ Application::Application()
     statusLed.ledRedGreen.setColor(util::led::pwm::DualLedColor::Green);
 }
 
-uint8_t txBuffer[64];
-
 //--------------------------------------------------------------------------------------------------
 [[noreturn]] void Application::run()
 {
@@ -64,14 +62,6 @@ void Application::registerCallbacks()
 }
 
 //--------------------------------------------------------------------------------------------------
-// Determine the address bits by reading three solder pads
-uint8_t Application::determineAddressBits()
-{
-    controlPanelIndex = addressBit0.read() ? 1 : 0 | addressBit1.read() ? 2 : 0 | addressBit2.read() ? 4 : 0;
-    return controlPanelIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
 void Application::setupCanBus()
 {
     FDCAN_FilterTypeDef filter;
@@ -91,18 +81,24 @@ void Application::setupCanBus()
     };
 
     // set can id filters
-    if (controlPanelIndex == 0)
+    if (ControlPanelIndex == 0)
     {
         // special case for the main control panel
         // only the long led strip from both light drivers
-        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + can_id::LightDriverOffset, 0);
-        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + 2 * can_id::LightDriverOffset, 1);
+        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + 1 * can_id::LightDriverOffset +
+                            static_cast<uint8_t>(can_id::LedType::LongSide),
+                        0);
+
+        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + 2 * can_id::LightDriverOffset +
+                            static_cast<uint8_t>(can_id::LedType::LongSide),
+                        1);
     }
     else
     {
-        const auto ControlPanelOffset = controlPanelIndex * can_id::LightDriverOffset;
-        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + ControlPanelOffset, 0);
-        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + ControlPanelOffset + can_id::LedStripOffset, 1);
+        const auto ControlPanelOffset = ControlPanelIndex * can_id::LightDriverOffset;
+        configureFilter(static_cast<uint8_t>(can_id::IdBase::Status) + ControlPanelOffset +
+                            static_cast<uint8_t>(can_id::LedType::ShortSide),
+                        0);
     }
 
     configASSERT(HAL_FDCAN_Start(CanPeripherie) == HAL_OK);
