@@ -25,9 +25,16 @@ public:
         userInterface.powerButton.setCallback(
             std::bind(&StateMachine::powerButtonCallback, this, std::placeholders::_1));
 
-        // ToDo: set sync button callback
-        // userInterface.syncButton.setCallback(
-        //     std::bind(&StateMachine::syncButtonCallback, this, std::placeholders::_1));
+        userInterface.syncButton.setCallback(std::bind(&StateMachine::syncButtonCallback, this, std::placeholders::_1));
+    }
+
+    static void timeoutCallback(TimerHandle_t xTimer)
+    {
+        auto instance = static_cast<StateMachine *>(pvTimerGetTimerID(xTimer));
+
+        // reset brightness and color temperature levels to default after being off for some time
+        instance->brightnessLevel = DefaultBrightnessLevel;
+        instance->colorTemperatureLevel = DefaultColorTemperatureLevel;
     }
 
 protected:
@@ -72,10 +79,13 @@ private:
     static constexpr auto StepPerColorTemperatureLevel = 300;
     static constexpr auto StartColorTemperature = 2700 - StepPerColorTemperatureLevel; // because of 1-based index
 
-    uint8_t brightnessLevels = DefaultBrightnessLevel;
-    uint8_t colorTemperatureLevels = DefaultColorTemperatureLevel;
+    uint8_t brightnessLevel = DefaultBrightnessLevel;
+    uint8_t colorTemperatureLevel = DefaultColorTemperatureLevel;
     bool powerState = false;
     bool isInColorChangeState = false;
+
+    TimerHandle_t resetLevelsTimer{
+        xTimerCreate("resetLevelsTimer", toOsTicks(15.0_s), pdTRUE, this, &StateMachine::timeoutCallback)};
 
     //-------------------------------------------------------------------------------------------------
     void processEncoderMovement()
@@ -83,48 +93,76 @@ private:
         if (encoderDelta == 0)
             return;
 
-        powerState = true; // turn on led strip if encoder is moved
+        if (!powerState)
+            powerOn();
+
         isInColorChangeState ? updateColorTemperature() : updateBrightness();
     }
 
     //-------------------------------------------------------------------------------------------------
     void updateBrightness()
     {
-        brightnessLevels = //
-            std::clamp(brightnessLevels + encoderDelta, 0, MaximumLevel);
+        brightnessLevel = std::clamp(brightnessLevel + encoderDelta, 0, MaximumLevel);
 
-        publishBrightness(brightnessLevels);
+        if (brightnessLevel == 0)
+            powerOff();
+
+        publishBrightness(brightnessLevel);
     }
 
     //-------------------------------------------------------------------------------------------------
     void updateColorTemperature()
     {
-        colorTemperatureLevels = //
-            std::clamp(colorTemperatureLevels + encoderDelta, 1, MaximumLevel);
+        colorTemperatureLevel = std::clamp(colorTemperatureLevel + encoderDelta, 1, MaximumLevel);
 
-        publishColorTemperature(colorTemperatureLevels);
+        publishColorTemperature(colorTemperatureLevel);
     }
 
     //-------------------------------------------------------------------------------------------------
     void togglePower()
     {
-        powerState = !powerState;
-        isInColorChangeState = false; // reset to brightness mode on power toggle
-        publishBrightness(powerState ? brightnessLevels : 0);
+        !powerState ? powerOn() : powerOff();
+
+        if (powerState)
+        {
+            publishColorTemperature(colorTemperatureLevel);
+            publishBrightness(brightnessLevel);
+        }
+        else
+            publishBrightness(0);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void powerOff()
+    {
+        powerState = false;
+        isInColorChangeState = false;
+
+        // start timer to reset brightness and color temperature levels after being off for some time
+        xTimerReset(resetLevelsTimer, 0);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void powerOn()
+    {
+        powerState = true;
+
+        // stop timer to reset brightness and color temperature levels after being off for some time
+        xTimerStop(resetLevelsTimer, 0);
     }
 
     //-------------------------------------------------------------------------------------------------
     void resetBrightnessToDefault()
     {
-        brightnessLevels = DefaultBrightnessLevel;
-        publishBrightness(brightnessLevels);
+        brightnessLevel = DefaultBrightnessLevel;
+        publishBrightness(brightnessLevel);
     }
 
     //-------------------------------------------------------------------------------------------------
     void resetColorTemperatureToDefault()
     {
-        colorTemperatureLevels = DefaultColorTemperatureLevel;
-        publishColorTemperature(colorTemperatureLevels);
+        colorTemperatureLevel = DefaultColorTemperatureLevel;
+        publishColorTemperature(colorTemperatureLevel);
     }
 
     //-------------------------------------------------------------------------------------------------
@@ -154,6 +192,9 @@ private:
     //-------------------------------------------------------------------------------------------------
     void encoderButtonCallback(util::Button::Action action)
     {
+        if (!powerState)
+            return;
+
         switch (action)
         {
         case util::Button::Action::ShortPress:
@@ -161,8 +202,8 @@ private:
             // toggle between brightness and color change mode
             isInColorChangeState = !isInColorChangeState;
 
-            isInColorChangeState ? feedbackLedBar.showStatusAnimation.showColorTemperature(colorTemperatureLevels)
-                                 : feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevels);
+            isInColorChangeState ? feedbackLedBar.showStatusAnimation.showColorTemperature(colorTemperatureLevel)
+                                 : feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
         }
         break;
 
@@ -185,7 +226,7 @@ private:
             break;
 
         case util::Button::Action::LongPress:
-            powerState = true;
+            powerOn();
             resetColorTemperatureToDefault();
             resetBrightnessToDefault();
             break;
@@ -193,5 +234,14 @@ private:
         default:
             break;
         }
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void syncButtonCallback(util::Button::Action action)
+    {
+        // ToDo: short press: sync brightness and color temperature levels of all light drivers to the current
+        // levels of this control panel
+
+        // ToDo: long press: turn off all lights except the one related to this control panel
     }
 };
