@@ -25,7 +25,7 @@ public:
             fadingAnimation.updateTargetLedPixel(i, 0.5 * NeutralWhite);
 
         for (size_t i = lastLedIndex; i < NumberOfFeedbackLeds; i++)
-            fadingAnimation.updateTargetLedPixel(i, 0.05 * Blue);
+            fadingAnimation.updateTargetLedPixel(i, 0.04 * Red);
 
         resetAnimation();
     }
