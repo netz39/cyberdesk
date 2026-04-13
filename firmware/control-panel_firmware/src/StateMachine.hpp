@@ -166,26 +166,54 @@ private:
     }
 
     //-------------------------------------------------------------------------------------------------
-    void publishBrightness(uint8_t brightnessLevel)
+    uint8_t getBrightnessPercentage(uint8_t brightnessLevel)
     {
         uint8_t percentage = brightnessLevel * StepPerBrightnessLevel;
-
         if (percentage > 100)
             percentage = 100;
 
-        canMessageSender.sendBrightnessMessage(TargetLightDriverIndex, TargetLedType, percentage);
-        feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
+        return percentage;
     }
 
     //-------------------------------------------------------------------------------------------------
-    void publishColorTemperature(uint8_t colorTemperatureLevel)
+    uint16_t getColorTemperature(uint8_t colorTemperatureLevel)
     {
         uint16_t colorTemperature = StartColorTemperature + colorTemperatureLevel * StepPerColorTemperatureLevel;
 
         if (colorTemperature > 6500)
             colorTemperature = 6500;
 
-        canMessageSender.sendColorTemperatureMessage(TargetLightDriverIndex, TargetLedType, colorTemperature);
+        return colorTemperature;
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void publishGlobal(uint8_t brightnessLevel, uint8_t colorTemperatureLevel)
+    {
+        canMessageSender.sendGlobalColorTemperatureMessage(getColorTemperature(colorTemperatureLevel));
+        canMessageSender.sendGlobalBrightnessMessage(getBrightnessPercentage(brightnessLevel));
+        feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void publishBrightness(uint8_t brightnessLevel)
+    {
+        // ToDo:
+        // publishGlobal(brightnessLevel, colorTemperatureLevel);
+
+        canMessageSender.sendBrightnessMessage(TargetLightDriverIndex, TargetLedType,
+                                               getBrightnessPercentage(brightnessLevel));
+
+        feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void publishColorTemperature(uint8_t colorTemperatureLevel)
+    {
+        // ToDo:
+        // publishGlobal(brightnessLevel, colorTemperatureLevel);
+
+        canMessageSender.sendColorTemperatureMessage(TargetLightDriverIndex, TargetLedType,
+                                                     getColorTemperature(colorTemperatureLevel));
         feedbackLedBar.showStatusAnimation.showColorTemperature(colorTemperatureLevel);
     }
 
@@ -239,9 +267,20 @@ private:
     //-------------------------------------------------------------------------------------------------
     void syncButtonCallback(util::Button::Action action)
     {
-        // ToDo: short press: sync brightness and color temperature levels of all light drivers to the current
-        // levels of this control panel
+        if (action == util::Button::Action::ShortPress)
+        {
+            // sync brightness and color temperature levels of all light drivers
+            // to the current levels of this control panel
+            publishGlobal(brightnessLevel, colorTemperatureLevel);
+        }
+        else if (action == util::Button::Action::LongPress)
+        {
+            // turn off all lights...
+            publishGlobal(0, 0);
 
-        // ToDo: long press: turn off all lights except the one related to this control panel
+            // ... except the one related to this control panel
+            publishColorTemperature(colorTemperatureLevel);
+            publishBrightness(brightnessLevel);
+        }
     }
 };

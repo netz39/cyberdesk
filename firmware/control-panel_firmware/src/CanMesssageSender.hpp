@@ -32,7 +32,8 @@ public:
     void sendMessage(can_id::IdBase baseCommand, uint8_t lightDriverIndex, can_id::LedType ledType, uint16_t payload)
     {
         FDCAN_TxHeaderTypeDef txHeader = createDefaultTxHeader();
-        txHeader.Identifier = can_id::buildId(baseCommand, lightDriverIndex, ledType);
+        txHeader.Identifier = lightDriverIndex == 0 ? can_id::buildGlobalId(baseCommand)
+                                                    : can_id::buildId(baseCommand, lightDriverIndex, ledType);
 
         if (baseCommand == can_id::IdBase::Brightness)
         {
@@ -64,6 +65,18 @@ public:
     void sendColorTemperatureMessage(uint8_t lightDriverIndex, can_id::LedType ledType, uint16_t colorTemperature)
     {
         sendMessage(can_id::IdBase::ColorTemperature, lightDriverIndex, ledType, colorTemperature);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void sendGlobalBrightnessMessage(uint8_t brightness)
+    {
+        sendMessage(can_id::IdBase::Brightness, 0, can_id::LedType::LongSide, brightness);
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    void sendGlobalColorTemperatureMessage(uint16_t colorTemperature)
+    {
+        sendMessage(can_id::IdBase::ColorTemperature, 0, can_id::LedType::LongSide, colorTemperature);
     }
 
 private:
