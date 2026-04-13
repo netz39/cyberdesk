@@ -62,9 +62,9 @@ constexpr std::optional<DecodedId> decodeId(uint8_t canId)
     result.isGlobal = (result.ledDriverIndex == 0); // global if no driver offset applied
 
     // Remainder contains base command + LED type
-    const uint8_t remainder = canId % LightDriverOffset;
+    const uint8_t remainder = canId - (result.ledDriverIndex * LightDriverOffset);
 
-    if (remainder >= static_cast<uint8_t>(LedType::ShortSide))
+    if (remainder >= static_cast<uint8_t>(IdBase::Status) + static_cast<uint8_t>(LedType::ShortSide))
     {
         // command related to short side strip
         result.ledType = LedType::ShortSide;
@@ -81,3 +81,16 @@ constexpr std::optional<DecodedId> decodeId(uint8_t canId)
 }
 
 } // namespace can_id
+
+// can id examples:
+//
+// brightness message to LightDriver1 and LedStrip0 (long side)
+// Brightness command + 1 * LightDriverOffset + 0 * LedStripOffset
+// 0x11 + 1 * 0x10 + 0 * 0x05 = 0x21
+//
+// color temperature message to LightDriver2 and LedStrip1 (short side)
+// ColorTemperature command + 2 * LightDriverOffset + 1 * LedStripOffset
+// 0x12 + 2 * 0x10 + 1 * 0x05 = 0x37
+//
+// global control - set all strips to same brightness
+// 0x11
