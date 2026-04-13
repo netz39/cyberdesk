@@ -71,6 +71,14 @@ private:
 
         uint8_t *txData = txBuffer + sizeof(FDCAN_TxHeaderTypeDef);
 
+        while (true)
+        {
+            if (HAL_FDCAN_GetTxFifoFreeLevel(canPeripherie) != 0)
+                break;
+
+            vTaskDelay(toOsTicks(1.0_ms));
+        }
+
         configASSERT(HAL_FDCAN_AddMessageToTxFifoQ(canPeripherie, txHeader, txData) == HAL_OK);
     }
 };
