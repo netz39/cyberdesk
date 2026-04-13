@@ -32,9 +32,16 @@ public:
     {
         auto instance = static_cast<StateMachine *>(pvTimerGetTimerID(xTimer));
 
-        // reset brightness and color temperature levels to default after being off for some time
-        instance->brightnessLevel = DefaultBrightnessLevel;
-        instance->colorTemperatureLevel = DefaultColorTemperatureLevel;
+        // check in which context the timer has expired
+        if (!instance->powerState)
+        {
+            // reset brightness and color temperature levels to default after being off for some time
+            instance->brightnessLevel = DefaultBrightnessLevel;
+            instance->colorTemperatureLevel = DefaultColorTemperatureLevel;
+        }
+        else if (instance->isInColorChangeState)
+            // reset back to brightness change mode after being in color change mode for some time
+            instance->isInColorChangeState = false;
     }
 
 protected:
@@ -47,9 +54,8 @@ protected:
         while (true)
         {
             // evaluate encoder delta and do button sampling
-            encoderDelta = userInterface.encoder.getEncoderDelta();
+            processEncoderMovement(userInterface.encoder.getEncoderDelta());
             userInterface.doButtonsSampling(TaskSamplingInterval);
-            processEncoderMovement();
 
             vTaskDelayUntil(&lastWakeTime, toOsTicks(TaskSamplingInterval));
         }
@@ -70,8 +76,6 @@ private:
     FeedbackLedBar &feedbackLedBar;
     UserInterface userInterface;
 
-    int encoderDelta;
-
     static constexpr auto MaximumLevel = NumberOfFeedbackLeds;
     static constexpr auto DefaultBrightnessLevel = 9;       // 80% brightness
     static constexpr auto DefaultColorTemperatureLevel = 6; // 4200K color temperature
@@ -79,16 +83,18 @@ private:
     static constexpr auto StepPerColorTemperatureLevel = 300;
     static constexpr auto StartColorTemperature = 2700 - StepPerColorTemperatureLevel; // because of 1-based index
 
+    static constexpr auto TimerTimeout = 15.0_s;
+
     uint8_t brightnessLevel = DefaultBrightnessLevel;
     uint8_t colorTemperatureLevel = DefaultColorTemperatureLevel;
     bool powerState = false;
     bool isInColorChangeState = false;
 
     TimerHandle_t resetLevelsTimer{
-        xTimerCreate("resetLevelsTimer", toOsTicks(15.0_s), pdTRUE, this, &StateMachine::timeoutCallback)};
+        xTimerCreate("resetLevelsTimer", toOsTicks(TimerTimeout), pdTRUE, this, &StateMachine::timeoutCallback)};
 
     //-------------------------------------------------------------------------------------------------
-    void processEncoderMovement()
+    void processEncoderMovement(int encoderDelta)
     {
         if (encoderDelta == 0)
             return;
@@ -96,11 +102,21 @@ private:
         if (!powerState)
             powerOn();
 
-        isInColorChangeState ? updateColorTemperature() : updateBrightness();
+        if (isInColorChangeState)
+        {
+            updateColorTemperature(encoderDelta);
+
+            // reset timer to stay longer in color change mode after encoder movement
+            xTimerReset(resetLevelsTimer, 0);
+        }
+        else
+        {
+            updateBrightness(encoderDelta);
+        }
     }
 
     //-------------------------------------------------------------------------------------------------
-    void updateBrightness()
+    void updateBrightness(int encoderDelta)
     {
         brightnessLevel = std::clamp(brightnessLevel + encoderDelta, 0, MaximumLevel);
 
@@ -111,7 +127,7 @@ private:
     }
 
     //-------------------------------------------------------------------------------------------------
-    void updateColorTemperature()
+    void updateColorTemperature(int encoderDelta)
     {
         colorTemperatureLevel = std::clamp(colorTemperatureLevel + encoderDelta, 1, MaximumLevel);
 
@@ -138,7 +154,7 @@ private:
         powerState = false;
         isInColorChangeState = false;
 
-        // start timer to reset brightness and color temperature levels after being off for some time
+        // start timer to reset brightness and color temperature levels after being off for [TimerTimeout] time
         xTimerReset(resetLevelsTimer, 0);
     }
 
@@ -147,7 +163,7 @@ private:
     {
         powerState = true;
 
-        // stop timer to reset brightness and color temperature levels after being off for some time
+        // stop timer to reset brightness and color temperature levels after being off for [TimerTimeout] time
         xTimerStop(resetLevelsTimer, 0);
     }
 
@@ -230,13 +246,26 @@ private:
             // toggle between brightness and color change mode
             isInColorChangeState = !isInColorChangeState;
 
-            isInColorChangeState ? feedbackLedBar.showStatusAnimation.showColorTemperature(colorTemperatureLevel)
-                                 : feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
+            if (isInColorChangeState)
+            {
+                feedbackLedBar.showStatusAnimation.showColorTemperature(colorTemperatureLevel);
+
+                // start timer to reset back to brightness change mode after being in color change mode for some time
+                xTimerReset(resetLevelsTimer, 0);
+            }
+            else
+            {
+                feedbackLedBar.showStatusAnimation.showBrightness(brightnessLevel);
+
+                // stop timer because of leaving color change mode now
+                xTimerStop(resetLevelsTimer, 0);
+            }
         }
         break;
 
         case util::Button::Action::LongPress:
         {
+            // reset brightness or color temperature levels to their default respectively depending on the current mode
             isInColorChangeState ? resetColorTemperatureToDefault() : resetBrightnessToDefault();
         }
         default:
